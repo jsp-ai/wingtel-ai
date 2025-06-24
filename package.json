@@ -1,0 +1,23 @@
+{
+  "name": "wingtel-ai",
+  "version": "1.0.0",
+  "main": "test-db.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsp-ai/wingtel-ai.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jsp-ai/wingtel-ai/issues"
+  },
+  "homepage": "https://github.com/jsp-ai/wingtel-ai#readme",
+  "description": "",
+  "dependencies": {
+    "pg": "^8.16.2"
+  }
+}
