@@ -1,0 +1,164 @@
+name: Deploy Frontend to Netlify
+
+on:
+  push:
+    branches: [main, staging]
+    paths: ['packages/frontend/**', 'netlify.toml', '.github/workflows/deploy-frontend.yml']
+  pull_request:
+    paths: ['packages/frontend/**']
+
+env:
+  NODE_VERSION: '18'
+  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+jobs:
+  deploy:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd packages/frontend && npm ci
+
+      - name: Setup environment variables
+        run: |
+          # Create frontend environment file
+          cat > packages/frontend/.env.production << EOL
+          REACT_APP_SUPABASE_URL=${{ secrets.REACT_APP_SUPABASE_URL }}
+          REACT_APP_SUPABASE_ANON_KEY=${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_ENVIRONMENT=${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+          REACT_APP_VERSION=${{ github.sha }}
+          GENERATE_SOURCEMAP=false
+          EOL
+
+      - name: Run tests
+        run: |
+          cd packages/frontend
+          npm run test:ci
+
+      - name: Build frontend
+        run: |
+          cd packages/frontend
+          npm run build
+        env:
+          CI: true
+          NODE_ENV: production
+
+      - name: Run security audit
+        run: |
+          cd packages/frontend
+          npm audit --audit-level=high
+
+      - name: Deploy to Netlify (Production)
+        if: github.ref == 'refs/heads/main'
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --prod --dir=packages/frontend/dist --message="Production deploy ${{ github.sha }}"
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Deploy to Netlify (Staging)
+        if: github.ref == 'refs/heads/staging'
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --alias=staging --dir=packages/frontend/dist --message="Staging deploy ${{ github.sha }}"
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Deploy Preview (PR)
+        if: github.event_name == 'pull_request'
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir=packages/frontend/dist --message="Preview deploy PR #${{ github.event.number }}"
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Comment PR with preview URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: deployments } = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              environment: 'netlify'
+            });
+            
+            if (deployments.length > 0) {
+              const deployment = deployments[0];
+              const previewUrl = `https://deploy-preview-${{ github.event.number }}--${process.env.NETLIFY_SITE_ID}.netlify.app`;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 🚀 Frontend Preview Deployed\n\n✅ Preview URL: [${previewUrl}](${previewUrl})\n\n📊 Changes in this PR:\n- Frontend updates deployed to Netlify\n- All tests passing\n- Security audit completed`
+              });
+            }
+
+  lighthouse:
+    name: Lighthouse Performance Check
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+
+      - name: Run Lighthouse CI
+        run: |
+          lhci autorun --upload.target=temporary-public-storage
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          LHCI_TOKEN: ${{ secrets.LHCI_TOKEN }}
+
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy, lighthouse]
+    if: always() && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Notify Slack
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: "🎉 MVNO Frontend deployed successfully to production!"
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Notify on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: "❌ MVNO Frontend deployment failed. Please check the logs."
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }} 

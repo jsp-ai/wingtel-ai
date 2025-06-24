@@ -4,6 +4,12 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Enable pgcrypto for password hashing
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Enable vector extension for AI embeddings (if available)
+CREATE EXTENSION IF NOT EXISTS "vector" WITH SCHEMA extensions;
+
 -- Enable timestamp utilities
 CREATE EXTENSION IF NOT EXISTS "btree_gist";
 

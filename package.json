@@ -1,23 +1,125 @@
 {
-  "name": "wingtel-ai",
+  "name": "wingtel-mvno-platform",
   "version": "1.0.0",
-  "main": "test-db.js",
+  "description": "AI-enhanced MVNO operations platform to replace BeQuick",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "frontend/admin-dashboard",
+    "frontend/customer-portal"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "docker-compose up -d",
+    "dev:logs": "docker-compose logs -f",
+    "dev:build": "docker-compose build",
+    "dev:down": "docker-compose down",
+    "dev:clean": "docker-compose down -v --rmi all",
+    "setup": "node scripts/quick-setup.js",
+    "setup:full": "npm run setup:env && npm run setup:deps && npm run setup:supabase",
+    "setup:supabase": "node scripts/setup-supabase.js",
+    "setup:netlify": "node scripts/setup-netlify.js",
+    "setup:env": "cp env.template .env && echo '✅ Environment template copied to .env - please fill in your values'",
+    "setup:deps": "npm install && npm run install:all",
+    "install:all": "npm run install:backend && npm run install:frontend && npm run install:ai",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install", 
+    "install:ai": "cd ai-services && pip install -r requirements.txt",
+    "demo:import": "node scripts/import-full-data.js",
+    "demo:scenarios": "node scripts/demo-scenarios.js",
+    "demo:setup": "npm run demo:import && npm run demo:scenarios",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "docker-compose up",
+    "start:prod": "NODE_ENV=production docker-compose -f docker-compose.prod.yml up",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm run test",
+    "test:frontend": "cd frontend && npm run test",
+    "test:e2e": "cd backend && npm run test:e2e",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "db:migrate": "supabase db push",
+    "db:reset": "supabase db reset",
+    "db:seed": "psql $DATABASE_URL -f scripts/seed-data.sql",
+    "db:backup": "pg_dump $DATABASE_URL > backups/$(date +%Y%m%d_%H%M%S)_backup.sql",
+    "migration:bequick": "node scripts/migrate-from-bequick.js",
+    "docs:api": "cd backend && npm run docs:generate",
+    "docs:serve": "cd docs && npx http-server",
+    "deploy:staging": "npm run build && docker-compose -f docker-compose.staging.yml up -d",
+    "deploy:prod": "npm run build && docker-compose -f docker-compose.prod.yml up -d",
+    "deploy:frontend": "netlify deploy --prod --dir=frontend/dist",
+    "deploy:frontend:preview": "netlify deploy --dir=frontend/dist",
+    "deploy:frontend:staging": "netlify deploy --alias=staging --dir=frontend/dist",
+    "logs": "docker-compose logs",
+    "logs:api": "docker-compose logs api-gateway",
+    "logs:ai": "docker-compose logs ai-services",
+    "logs:frontend": "docker-compose logs frontend",
+    "health": "npm run health:api && npm run health:ai && npm run health:db",
+    "health:api": "curl -f http://localhost:3000/health || echo '❌ API Gateway not healthy'",
+    "health:ai": "curl -f http://localhost:8000/health || echo '❌ AI Services not healthy'",
+    "health:db": "pg_isready -h localhost -p 5432 -U mvno || echo '❌ Database not healthy'",
+    "clean": "npm run clean:deps && npm run clean:docker",
+    "clean:deps": "rm -rf node_modules backend/node_modules frontend/node_modules",
+    "clean:docker": "docker system prune -a -f",
+    "create:org": "node scripts/create-organization.js",
+    "backup:supabase": "supabase db dump --file backups/supabase_$(date +%Y%m%d_%H%M%S).sql"
+  },
+  "keywords": [
+    "mvno",
+    "telecommunications",
+    "ai",
+    "subscriber-management",
+    "billing",
+    "supabase",
+    "nestjs",
+    "react",
+    "fastapi"
+  ],
+  "author": "Wingtel AI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.1",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0",
+    "pg": "^8.16.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jsp-ai/wingtel-ai.git"
+    "url": "https://github.com/wingtel-ai/mvno-platform.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jsp-ai/wingtel-ai/issues"
+    "url": "https://github.com/wingtel-ai/mvno-platform/issues"
   },
-  "homepage": "https://github.com/jsp-ai/wingtel-ai#readme",
-  "description": "",
-  "dependencies": {
-    "pg": "^8.16.2"
+  "homepage": "https://github.com/wingtel-ai/mvno-platform#readme",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
+    }
   }
 }

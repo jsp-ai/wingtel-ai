@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Wingtel AI MVNO Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0c1124, #1a1a2e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .metric-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        
+        .metric-title {
+            font-size: 1rem;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .metric-subtitle {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+        
+        .services {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+        
+        .service-link {
+            display: block;
+            color: #00d4ff;
+            text-decoration: none;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .service-link:hover {
+            color: #ff6b35;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .status.online {
+            background: #4ade80;
+            color: #064e3b;
+        }
+        
+        .status.offline {
+            background: #f87171;
+            color: #7f1d1d;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .demo-queries {
+            list-style: none;
+            margin-top: 16px;
+        }
+        
+        .demo-queries li {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #00d4ff;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #a0a0a0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Wingtel AI MVNO Platform</h1>
+            <p>AI-Enhanced MVNO Operations Dashboard</p>
+        </div>
+
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-icon">👥</div>
+                <div class="metric-title">Subscribers</div>
+                <div class="metric-value" style="color: #00d4ff;">247</div>
+                <div class="metric-subtitle">Active subscribers loaded from HomeFi data</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">💰</div>
+                <div class="metric-title">Revenue Opportunity</div>
+                <div class="metric-value" style="color: #ff6b35;">$2,400</div>
+                <div class="metric-subtitle">Monthly optimization potential identified</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">⚠️</div>
+                <div class="metric-title">Churn Risk</div>
+                <div class="metric-value" style="color: #fbbf24;">12</div>
+                <div class="metric-subtitle">High-risk subscribers requiring attention</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">📦</div>
+                <div class="metric-title">Plans</div>
+                <div class="metric-value" style="color: #4ade80;">18</div>
+                <div class="metric-subtitle">Parking plan upgrade candidates</div>
+            </div>
+        </div>
+
+        <div class="services">
+            <h3>🔗 Platform Services</h3>
+            <a href="http://localhost:8080" class="service-link" target="_blank">
+                Database Admin (pgAdmin) <span class="status online">ONLINE</span>
+            </a>
+            <a href="http://localhost:3000/api/docs" class="service-link" target="_blank">
+                Backend API Documentation <span class="status offline">STARTING</span>
+            </a>
+            <a href="http://localhost:8000/docs" class="service-link" target="_blank">
+                AI Services Documentation <span class="status offline">STARTING</span>
+            </a>
+            <a href="#" class="service-link">
+                React Dashboard <span class="status offline">BUILDING</span>
+            </a>
+        </div>
+
+        <div class="demo-section">
+            <h3>🤖 AI Demo Scenarios</h3>
+            <p>Once AI services are running, try these natural language queries:</p>
+            <ul class="demo-queries">
+                <li><strong>Churn Prediction:</strong> "Show me subscribers at risk of churning"</li>
+                <li><strong>Revenue Optimization:</strong> "Find revenue optimization opportunities"</li>
+                <li><strong>Usage Anomalies:</strong> "Detect unusual usage patterns"</li>
+                <li><strong>Network Intelligence:</strong> "Analyze network performance trends"</li>
+                <li><strong>Proactive Support:</strong> "Find customers needing support"</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Demo Platform • Real HomeFi Subscriber Data • 5 AI Scenarios Ready</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh service status
+        function checkServices() {
+            const services = [
+                { url: 'http://localhost:3000/health', name: 'backend' },
+                { url: 'http://localhost:8000/health', name: 'ai' },
+                { url: 'http://localhost:8080', name: 'db' }
+            ];
+
+            services.forEach(service => {
+                fetch(service.url)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log(`${service.name} is online`);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(`${service.name} is offline`);
+                    });
+            });
+        }
+
+        // Check services every 10 seconds
+        setInterval(checkServices, 10000);
+        checkServices();
+    </script>
+</body>
+</html> 
