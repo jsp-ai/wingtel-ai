@@ -111,6 +111,25 @@ flowchart TD
 • **Data:** Postgres, Kafka (Redpanda), dbt + DuckDB for quick marts
 • **Infra:** Docker, Kubernetes (EKS), Terraform IaC
 
+## 7.1 Deployment Architecture (Hybrid)
+**Backend Services (AWS/GCP)**
+• EKS/GKE cluster with microservices
+• RDS Postgres (encrypted, multi-AZ)
+• MSK/Pub-Sub for event streaming
+• API Gateway with custom domain
+• Secrets Manager for credentials
+
+**Frontend (Netlify)**
+• React SPA served from global CDN
+• Connects to backend APIs via HTTPS
+• Environment variables for API_BASE_URL
+• Deploy previews for every PR
+
+**Benefits:**
+• Frontend deploys in seconds via Git push
+• Backend scales independently with enterprise features
+• Clear separation of concerns (UI vs business logic)
+
 ## 8. Security & Compliance
 • Tokenized payments only; no PAN storage.<br/>
 • Role-based access, field-level encryption for PII.
